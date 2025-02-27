@@ -1,5 +1,7 @@
 import tcod
 
+from actions import EscapeAction, MovementAction
+from input_handlers import EventHandler
 def main():
 
     # screen size
@@ -15,6 +17,8 @@ def main():
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
+    # used to receive events and process them
+    event_handler = EventHandler()
     # Creating the screen
     with tcod.context.new_terminal(
         screen_width,
@@ -31,9 +35,21 @@ def main():
             root_console.print(x=player_x, y=player_y, string="@")
             context.present(root_console)
 
-            # allows us to exit the game
+            # when we move, it allows us to not leave a trail/tail
+            root_console.clear()
+
             for event in tcod.event.wait():
-                if event.type == "QUIT":
+                # allows us to the event to its proper place
+                action = event_handler.dispatch(event)
+                if action is None:
+                    continue
+
+                # if action is an instance of MovementClass, we move our "@" symbol
+                if isinstance(action, MovementAction):
+                    player_x += action.dx
+                    player_y += action.dy
+                # if user hits esc key, program exits
+                elif isinstance(action, EscapeAction):
                     raise SystemExit()
 
 if __name__ == "__main__":
