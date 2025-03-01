@@ -25,6 +25,7 @@ class MovementAction(Action):   # used to describe our player moving around
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
+        # Double checking that move is inbounds and walkable
         if not engine.game_map.in_bounds(dest_x, dest_y):
             return  # Destination out of bounds
         if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
