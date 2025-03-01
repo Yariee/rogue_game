@@ -1,16 +1,13 @@
 import tcod
 
 from actions import EscapeAction, MovementAction
+from entity import Entity
 from input_handlers import EventHandler
 def main():
 
     # screen size
     screen_width = 80
     screen_height = 50
-
-    # keeping track of player position
-    player_x = int(screen_width / 2)
-    player_y = int(screen_height / 2)
 
     # telling tcod which font we are going to be using.
     tileset = tcod.tileset.load_tilesheet(
@@ -19,6 +16,12 @@ def main():
 
     # used to receive events and process them
     event_handler = EventHandler()
+
+    # initializing a new player and a NPC from the Entity class
+    player = Entity(int(screen_width / 2), int (screen_height / 2), "@", (255, 255, 255))
+    npc = Entity(int(screen_width / 2 - 5), int (screen_height / 2), "@", (255, 255, 255))
+    entities = {npc, player}
+
     # Creating the screen
     with tcod.context.new_terminal(
         screen_width,
@@ -32,7 +35,7 @@ def main():
         # game loop, won't end unless we exit the screen.
         while True:
             # Tells the program to put the "@" on the screen in its proper coordinates.
-            root_console.print(x=player_x, y=player_y, string="@")
+            root_console.print(x=player.x, y=player.y, string=player.char, fg=player.color)
             context.present(root_console)
 
             # when we move, it allows us to not leave a trail/tail
@@ -46,8 +49,7 @@ def main():
 
                 # if action is an instance of MovementClass, we move our "@" symbol
                 if isinstance(action, MovementAction):
-                    player_x += action.dx
-                    player_y += action.dy
+                    player.move(dx=action.dx, dy=action.dy)
                 # if user hits esc key, program exits
                 elif isinstance(action, EscapeAction):
                     raise SystemExit()
