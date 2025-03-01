@@ -18,7 +18,7 @@ class Engine:
         self.event_handler = event_handler
         self.player = player
 
-    def event_handler(self, events: Iterable[Any]) -> None:
+    def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:
             action = self.event_handler.dispatch(event)
 
