@@ -1,6 +1,6 @@
 import tcod
 
-from actions import EscapeAction, MovementAction
+from engine import Engine
 from entity import Entity
 from input_handlers import EventHandler
 def main():
@@ -19,8 +19,11 @@ def main():
 
     # initializing a new player and a NPC from the Entity class
     player = Entity(int(screen_width / 2), int (screen_height / 2), "@", (255, 255, 255))
-    npc = Entity(int(screen_width / 2 - 5), int (screen_height / 2), "@", (255, 255, 255))
+    npc = Entity(int(screen_width / 2 - 5), int (screen_height / 2), "@", (255, 255, 0))
     entities = {npc, player}
+
+    # create the instance of the engine and send the needed variables
+    engine = Engine(entities=entities, event_handler=event_handler, player=player)
 
     # Creating the screen
     with tcod.context.new_terminal(
@@ -34,25 +37,10 @@ def main():
         root_console = tcod.Console(screen_width, screen_height, order="F")
         # game loop, won't end unless we exit the screen.
         while True:
-            # Tells the program to put the "@" on the screen in its proper coordinates.
-            root_console.print(x=player.x, y=player.y, string=player.char, fg=player.color)
-            context.present(root_console)
+            engine.render(console=root_console, context=context)
+            events = tcod.event.wait()
+            engine.handle_events(events)
 
-            # when we move, it allows us to not leave a trail/tail
-            root_console.clear()
-
-            for event in tcod.event.wait():
-                # allows us to the event to its proper place
-                action = event_handler.dispatch(event)
-                if action is None:
-                    continue
-
-                # if action is an instance of MovementClass, we move our "@" symbol
-                if isinstance(action, MovementAction):
-                    player.move(dx=action.dx, dy=action.dy)
-                # if user hits esc key, program exits
-                elif isinstance(action, EscapeAction):
-                    raise SystemExit()
 
 if __name__ == "__main__":
     main()
