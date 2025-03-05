@@ -6,10 +6,9 @@ import tile_types
 class GameMap:
     def __init__(self, width: int, height: int):
         self.width, self.height = width, height
-        # creating a 2D Array that will help fill self.tiles
-        self.tiles = np.full((width, height), fill_value=tile_types.floor, order="F")
+        # Our dungeon generator will fiil the map with wall tiles and rooms.
+        self.tiles = np.full((width, height), fill_value=tile_types.wall, order="F")
         # hard coding a wall for demonstration to see how it works.
-        self.tiles[30:33, 22] = tile_types.wall
 
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of the map"""
