@@ -1,4 +1,7 @@
-from typing import Tuple
+from __future__ import annotations
+import random
+from typing import Iterator, Tuple
+import tcod
 
 from game_map import GameMap
 import tile_types
@@ -30,6 +33,41 @@ class RectangularRoom:
         """
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
 
+    def intersects(self, other: RectangularRoom) -> bool:
+        """ Return True if  this rooms overlaps with another RectangularRooms.
+            Checks if our other rooms intersect with each other. True if they
+            do, False if they dont
+        """
+        return(
+            self.x1 <= other.x2
+            and self.x2 >= other.x1
+            and self.y1 <= other.y2
+            and self.y2 >= other.y1
+        )
+
+# Tuples will return coordinates
+def tunnel_between(
+        start: Tuple[int, int], end: Tuple[int, int]
+) -> Iterator[Tuple[int, int]]:
+    """ Return a L-Shaped tunnel between two points."""
+    x1, y1 = start
+    x2, y2 = end
+    if random.random() < 0.5:   # 50% chance
+        # Move horizontally then vertically
+        corner_x, corner_y = x2, y1
+    else:
+        # Move vertically then horizontally
+        corner_x, corner_y = x1, y2
+
+    # Generate the coordinates for the tunnel using the Bresenham algo that gets a line from one point to another
+    for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
+        # yield allows us to return a "generator". We return values and keep the local state. When the function is
+        # called again, it picks up where we left off rather than starting over.
+        yield x, y
+    for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
+
+
 def generate_dungeon(map_width, map_height) -> GameMap:
     dungeon = GameMap(map_width, map_height)
 
@@ -38,5 +76,8 @@ def generate_dungeon(map_width, map_height) -> GameMap:
 
     dungeon.tiles[room1.inner] = tile_types.floor
     dungeon.tiles[room2.inner] = tile_types.floor
+
+    for x, y in tunnel_between(room2.center, room1.center):
+        dungeon.tiles[x, y] = tile_types.floor
 
     return dungeon
