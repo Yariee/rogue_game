@@ -13,6 +13,11 @@ def main():
     map_width = 80
     map_height = 45
 
+    # Max and min size of the rooms along with max number of rooms a floor can have
+    room_max_size = 10
+    room_min_size = 6
+    max_rooms = 30
+
     # telling tcod which font we are going to be using.
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
